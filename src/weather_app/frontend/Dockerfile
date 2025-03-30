@@ -1,35 +1,32 @@
-# Stage 1: Builder stage
-FROM python:3.9-slim AS builder
-
-# Set working directory
-WORKDIR /app
-
-# Copy requirements file
-COPY requirements.txt .
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the frontend code
-COPY . .
-
-# Stage 2: Final stage
 FROM python:3.9-slim
 
-# Set working directory
+# Set working directory for the app
 WORKDIR /app
 
-# Copy installed packages from builder stage
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+# Set environment variable for port
+ENV PORT=8501
 
-# Copy the application code
-COPY --from=builder /app /app
+# Install uv
+RUN pip install --no-cache-dir uv
 
-# Add the src directory to PYTHONPATH
-ENV PYTHONPATH=/app:$PYTHONPATH
+# Create proper package structure
+RUN mkdir -p /app/weather_app/frontend
+
+# Copy the application code to the correct package location
+COPY . /app/weather_app/frontend/
+
+# Create a virtual environment
+RUN uv venv
+
+# Install dependencies directly without editable mode
+WORKDIR /app
+RUN cd /app/weather_app/frontend && uv pip install --no-cache-dir streamlit==1.24.0 requests==2.28.2 python-dotenv==1.0.0 pytest==7.3.1 httpx==0.24.0 numpy==1.24.3 matplotlib==3.7.1 pandas==2.0.1 plotly==5.14.1
+
+# Set PYTHONPATH environment variable to include the app directory
+ENV PYTHONPATH=/app
 
 # Expose the port the app runs on
-EXPOSE 8501
+EXPOSE $PORT
 
 # Command to run the application
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD uv run streamlit run weather_app/frontend/app.py --server.port=$PORT --server.address=0.0.0.0
