@@ -1,0 +1,146 @@
+{
+  "london": {
+    "current": {
+      "temperature": 15.5,
+      "humidity": 76,
+      "wind_speed": 5.2,
+      "wind_direction": "NW",
+      "condition": "Partly Cloudy",
+      "pressure": 1012,
+      "visibility": 10,
+      "uv_index": 4,
+      "timestamp": "2025-03-29T12:00:00Z"
+    },
+    "forecast": [
+      {
+        "date": "2025-03-30",
+        "temperature_high": 17.2,
+        "temperature_low": 10.1,
+        "humidity": 72,
+        "wind_speed": 6.1,
+        "wind_direction": "W",
+        "condition": "Sunny",
+        "precipitation_chance": 10,
+        "precipitation_amount": 0
+      },
+      {
+        "date": "2025-03-31",
+        "temperature_high": 16.8,
+        "temperature_low": 9.5,
+        "humidity": 68,
+        "wind_speed": 7.3,
+        "wind_direction": "SW",
+        "condition": "Partly Cloudy",
+        "precipitation_chance": 20,
+        "precipitation_amount": 0.5
+      },
+      {
+        "date": "2025-04-01",
+        "temperature_high": 14.5,
+        "temperature_low": 8.2,
+        "humidity": 82,
+        "wind_speed": 8.5,
+        "wind_direction": "S",
+        "condition": "Rain",
+        "precipitation_chance": 80,
+        "precipitation_amount": 12.3
+      }
+    ]
+  },
+  "new_york": {
+    "current": {
+      "temperature": 22.3,
+      "humidity": 65,
+      "wind_speed": 4.1,
+      "wind_direction": "SE",
+      "condition": "Clear",
+      "pressure": 1015,
+      "visibility": 15,
+      "uv_index": 6,
+      "timestamp": "2025-03-29T12:00:00Z"
+    },
+    "forecast": [
+      {
+        "date": "2025-03-30",
+        "temperature_high": 24.5,
+        "temperature_low": 18.2,
+        "humidity": 60,
+        "wind_speed": 3.8,
+        "wind_direction": "E",
+        "condition": "Sunny",
+        "precipitation_chance": 5,
+        "precipitation_amount": 0
+      },
+      {
+        "date": "2025-03-31",
+        "temperature_high": 26.1,
+        "temperature_low": 19.5,
+        "humidity": 55,
+        "wind_speed": 5.2,
+        "wind_direction": "SE",
+        "condition": "Clear",
+        "precipitation_chance": 0,
+        "precipitation_amount": 0
+      },
+      {
+        "date": "2025-04-01",
+        "temperature_high": 25.8,
+        "temperature_low": 20.1,
+        "humidity": 62,
+        "wind_speed": 6.7,
+        "wind_direction": "S",
+        "condition": "Partly Cloudy",
+        "precipitation_chance": 15,
+        "precipitation_amount": 0.2
+      }
+    ]
+  },
+  "tokyo": {
+    "current": {
+      "temperature": 18.7,
+      "humidity": 70,
+      "wind_speed": 3.5,
+      "wind_direction": "E",
+      "condition": "Clear",
+      "pressure": 1010,
+      "visibility": 12,
+      "uv_index": 5,
+      "timestamp": "2025-03-29T12:00:00Z"
+    },
+    "forecast": [
+      {
+        "date": "2025-03-30",
+        "temperature_high": 20.2,
+        "temperature_low": 15.1,
+        "humidity": 68,
+        "wind_speed": 4.2,
+        "wind_direction": "NE",
+        "condition": "Sunny",
+        "precipitation_chance": 10,
+        "precipitation_amount": 0
+      },
+      {
+        "date": "2025-03-31",
+        "temperature_high": 21.5,
+        "temperature_low": 16.3,
+        "humidity": 65,
+        "wind_speed": 3.8,
+        "wind_direction": "E",
+        "condition": "Clear",
+        "precipitation_chance": 5,
+        "precipitation_amount": 0
+      },
+      {
+        "date": "2025-04-01",
+        "temperature_high": 19.8,
+        "temperature_low": 14.5,
+        "humidity": 75,
+        "wind_speed": 5.5,
+        "wind_direction": "SE",
+        "condition": "Rain",
+        "precipitation_chance": 60,
+        "precipitation_amount": 8.2
+      }
+    ]
+  }
+}

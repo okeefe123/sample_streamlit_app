@@ -1,0 +1,9 @@
+{
+  "app_name": "Weather Data API - Production",
+  "debug": false,
+  "log_level": "INFO",
+  "weather_api_url": "https://api.example.com/weather/v1",
+  "cors_origins": [
+    "https://weather-app.example.com"
+  ]
+}

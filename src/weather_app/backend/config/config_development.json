@@ -1,0 +1,10 @@
+{
+  "app_name": "Weather Data API - Development",
+  "debug": true,
+  "log_level": "DEBUG",
+  "weather_api_url": "https://api.example.com/weather/v1",
+  "cors_origins": [
+    "http://localhost:8501",
+    "http://localhost:3000"
+  ]
+}

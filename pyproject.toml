@@ -1,0 +1,30 @@
+[project]
+name = "weather-app"
+version = "0.1.0"
+description = "Weather Data Analysis Application"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.44.0",
+    "fastapi>=0.104.0",
+    "uvicorn>=0.23.2",
+    "httpx>=0.25.0",
+    "pytest>=7.4.2",
+    "pytest-asyncio>=0.21.1",
+    "python-dotenv>=1.0.0",
+    "requests>=2.31.0",
+    "plotly>=5.18.0",
+    "pandas>=2.1.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["weather_app"]
+
+[tool.pytest.ini_options]
+testpaths = ["src/weather_app/backend/tests", "src/weather_app/frontend/tests"]
+python_files = "test_*.py"
