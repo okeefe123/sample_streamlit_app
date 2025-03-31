@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App Terraform Infrastructure</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .diagram-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: auto;
+            width: 100%;
+            height: calc(100vh - 200px);
+            min-height: 500px;
+            position: relative;
+        }
+        .fullscreen-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 5;
+        }
+        .fullscreen-btn:hover {
+            background-color: #2980b9;
+        }
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            margin: 0;
+            padding: 30px;
+            border-radius: 0;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 4px;
+        }
+        .vpc { background-color: rgba(41, 139, 199, 0.3); }
+        .network { background-color: rgba(49, 181, 189, 0.3); }
+        .compute { background-color: rgba(97, 212, 172, 0.3); }
+        .security { background-color: rgba(127, 100, 184, 0.3); }
+        .load-balancer { background-color: rgba(233, 129, 150, 0.3); }
+        .dns { background-color: rgba(226, 228, 130, 0.3); }
+        .section {
+            margin-bottom: 30px;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .resources {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .resource-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .resource-card h3 {
+            margin-top: 0;
+            color: #3498db;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .notes {
+            background-color: #fffde7;
+            padding: 15px;
+            border-left: 4px solid #ffd54f;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .journey {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .journey-step {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+        .step-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .step-content {
+            flex-grow: 1;
+        }
+        .step-content h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        /* Tooltip styles */
+        .term {
+            color: #3498db;
+            cursor: help;
+            position: relative;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-thickness: 1px;
+            text-underline-offset: 2px;
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            z-index: 10;
+            width: 300px;
+            background-color: white;
+            color: #333;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            line-height: 1.5;
+            font-weight: normal;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        
+        .term:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* For mobile responsiveness */
+        @media (max-width: 768px) {
+            .tooltip {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Weather App Terraform Infrastructure</h1>
+        <p>A visual representation of the GCP infrastructure managed by Terraform</p>
+    </header>
+
+    <div class="diagram-container" id="diagramContainer">
+        <button class="fullscreen-btn" id="fullscreenBtn">Toggle Fullscreen</button>
+        <div class="mermaid">
+            flowchart TD
+                %% Styling
+                classDef vpc fill:#298BC7,fill-opacity:0.3,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5,color:#000
+                classDef network fill:#31B5BD,fill-opacity:0.3,stroke:#333,stroke-width:1px,color:#000
+                classDef compute fill:#61D4AC,fill-opacity:0.3,stroke:#333,stroke-width:1px,color:#000
+                classDef security fill:#7F64B8,fill-opacity:0.3,stroke:#333,stroke-width:1px,color:#000
+                classDef loadbalancer fill:#E98196,fill-opacity:0.3,stroke:#333,stroke-width:1px,color:#000
+                classDef dns fill:#E2E482,fill-opacity:0.3,stroke:#333,stroke-width:1px,color:#000
+                classDef external fill:#f0f0f0,fill-opacity:0.5,stroke:#333,stroke-width:1px,stroke-dasharray: 3 3,color:#000
+                
+                %% VPC Container
+                subgraph VPC["VPC Network: weather-app-vpc"]
+                    direction TB
+                    
+                    %% Subnet Container
+                    subgraph SUBNET_CONTAINER["Subnet: weather-app-subnet (10.0.0.0/24)"]
+                        direction TB
+                        CONNECTOR[VPC Connector: weather-app-connector]
+                        
+                        %% Private Services
+                        subgraph PRIVATE_SERVICES["Private Services"]
+                            direction TB
+                            BACKEND[Cloud Run: weather-app-backend]
+                            FRONTEND[Cloud Run: weather-app-frontend]
+                            SA[Service Account: weather-app-run-sa]
+                        end
+                    end
+                    
+                    %% Network Components for Outbound Traffic
+                    subgraph NETWORKING["Outbound Connectivity"]
+                        direction TB
+                        ROUTER[Router: weather-app-router]
+                        NAT[Cloud NAT: weather-app-nat]
+                    end
+                end
+                
+                %% Public Services Outside VPC
+                subgraph PUBLIC_SERVICES["Public-Facing Services"]
+                    direction TB
+                    NEG[Network Endpoint Group]
+                    
+                    subgraph LOAD_BALANCER["Load Balancing"]
+                        direction TB
+                        BS[Backend Service]
+                        URLMAP[URL Map]
+                        
+                        subgraph HTTP_INGRESS["HTTP Ingress"]
+                            HTTP_REDIR[HTTP to HTTPS Redirect]
+                            HTTP_PROXY[HTTP Target Proxy]
+                            HTTP_FWD[HTTP Forwarding Rule]
+                        end
+                        
+                        subgraph HTTPS_INGRESS["HTTPS Ingress"]
+                            HTTPS_PROXY[HTTPS Target Proxy]
+                            HTTPS_FWD[HTTPS Forwarding Rule]
+                        end
+                    end
+                    
+                    subgraph SECURITY["Security"]
+                        CERT[SSL Certificate]
+                        IAP_CLIENT[IAP OAuth Client]
+                        IAP_BRAND[IAP Brand]
+                        IAP_ACCESS[IAP Access]
+                    end
+                    
+                    IP[Global IP: weather-app-ip]
+                end
+                
+                %% DNS Zone Outside VPC
+                subgraph DNS["DNS Configuration"]
+                    DNS_ZONE[DNS Zone: sdfingfd-xyz-zone]
+                    DNS_A[A Record]
+                    DNS_CNAME[CNAME Record]
+                end
+                
+                %% External Users
+                USERS[External Users]:::external
+                
+                %% Connections within VPC
+                ROUTER --> NAT
+                CONNECTOR <--> BACKEND
+                CONNECTOR <--> FRONTEND
+                BACKEND --> SA
+                FRONTEND --> SA
+                BACKEND <-- Internal Traffic --> FRONTEND
+                
+                %% Connections from VPC to Public Services
+                FRONTEND --> NEG
+                
+                %% Load Balancer Connections
+                NEG --> BS
+                BS --> URLMAP
+                URLMAP --> HTTPS_PROXY
+                URLMAP --> HTTP_REDIR
+                CERT --> HTTPS_PROXY
+                HTTP_REDIR --> HTTP_PROXY
+                HTTP_PROXY --> HTTP_FWD
+                HTTPS_PROXY --> HTTPS_FWD
+                
+                %% Security Connections
+                BS --> IAP_CLIENT
+                IAP_CLIENT --> IAP_BRAND
+                IAP_CLIENT --> IAP_ACCESS
+                
+                %% IP Address Connections
+                IP --> HTTP_FWD
+                IP --> HTTPS_FWD
+                
+                %% DNS Connections
+                DNS_ZONE --> DNS_A
+                DNS_ZONE --> DNS_CNAME
+                DNS_A --> IP
+                DNS_CNAME --> DNS_A
+                
+                %% External User Connections
+                USERS --> IP
+                
+                %% NAT Connection for outbound traffic
+                PRIVATE_SERVICES -- "Outbound Internet Traffic" --> NAT
+                
+                %% Apply classes
+                class VPC vpc
+                class SUBNET_CONTAINER,CONNECTOR,ROUTER,NAT network
+                class PRIVATE_SERVICES,BACKEND,FRONTEND,SA,NEG compute
+                class SECURITY,IAP_CLIENT,IAP_BRAND,IAP_ACCESS,CERT security
+                class PUBLIC_SERVICES,LOAD_BALANCER,IP,BS,URLMAP,HTTP_INGRESS,HTTPS_INGRESS,HTTPS_PROXY,HTTPS_FWD,HTTP_REDIR,HTTP_PROXY,HTTP_FWD loadbalancer
+                class DNS,DNS_ZONE,DNS_A,DNS_CNAME dns
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Legend</h2>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color vpc"></div>
+                <span>VPC Boundary</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color network"></div>
+                <span>Network Resources</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color compute"></div>
+                <span>Compute Resources</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color security"></div>
+                <span>Security Resources</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color load-balancer"></div>
+                <span>Load Balancer Resources</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color dns"></div>
+                <span>DNS Resources</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>User Journey: Accessing the Weather App</h2>
+        <div class="journey">
+            <div class="journey-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h4>Initial Request</h4>
+                    <p>An external user types "sdfingfd.xyz" in their browser and presses Enter.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h4>DNS Resolution</h4>
+                    <p>The browser queries DNS servers for "sdfingfd.xyz". The query reaches the <span class="term">DNS Zone<span class="tooltip">A container for DNS records belonging to a single parent domain. It allows you to manage all DNS records for a domain in one place.</span></span> "sdfingfd-xyz-zone". The <span class="term">A Record<span class="tooltip">A DNS record type that maps a domain name to an IPv4 address. It's the most direct way to point a domain to a specific server/IP.</span></span> returns the <span class="term">Global IP<span class="tooltip">A static external IP address that works across all regions, typically used with global load balancers to provide a consistent entry point to your application.</span></span> address of the application.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h4>Load Balancer Entry</h4>
+                    <p>The request arrives at the <span class="term">Global IP<span class="tooltip">A static external IP address that works across all regions, typically used with global load balancers to provide a consistent entry point to your application.</span></span> (weather-app-ip). If using HTTP, the <span class="term">HTTP Forwarding Rule<span class="tooltip">A resource that specifies which protocol and port a load balancer will use to route traffic to a target proxy. It's associated with a specific IP address.</span></span> routes to the <span class="term">HTTP Target Proxy<span class="tooltip">A resource that receives requests from a forwarding rule and distributes them to a URL map. HTTP target proxies handle standard HTTP traffic.</span></span>. The <span class="term">HTTP to HTTPS Redirect<span class="tooltip">A security feature that automatically redirects users from insecure HTTP connections to secure HTTPS connections to ensure data privacy and security.</span></span> sends the user to the secure HTTPS version. If using HTTPS, the <span class="term">HTTPS Forwarding Rule<span class="tooltip">A resource that specifies which protocol and port a load balancer will use to route traffic to a target proxy. It's associated with a specific IP address.</span></span> routes to the <span class="term">HTTPS Target Proxy<span class="tooltip">A resource that receives requests from a forwarding rule and distributes them to a URL map. HTTPS target proxies also handle SSL termination.</span></span>.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h4>Security Check</h4>
+                    <p>The <span class="term">SSL Certificate<span class="tooltip">A digital certificate that establishes secure encrypted connections between a user's browser and the web server, enabling HTTPS connections.</span></span> authenticates the connection. The <span class="term">HTTPS Target Proxy<span class="tooltip">A resource that receives requests from a forwarding rule and distributes them to a URL map. HTTPS target proxies also handle SSL termination.</span></span> forwards the request to the <span class="term">URL Map<span class="tooltip">A configuration resource that routes requests to a backend service or backend bucket based on rules that you define for the host and path of an incoming URL.</span></span>. The URL Map routes to the <span class="term">Backend Service<span class="tooltip">A centralized service that defines health checks and session affinity, and distributes traffic across backends, which can be instance groups or NEGs.</span></span>. <span class="term">Identity-Aware Proxy (IAP)<span class="tooltip">A security service that provides central authorization for applications accessed by HTTPS, enabling context-aware access to applications based on user identity and request context.</span></span> checks the user's authentication credentials. If not authenticated, the user receives a login screen. After successful authentication, the request proceeds.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h4>Entry to VPC</h4>
+                    <p>The <span class="term">Backend Service<span class="tooltip">A centralized service that defines health checks and session affinity, and distributes traffic across backends, which can be instance groups or NEGs.</span></span> forwards to the <span class="term">Network Endpoint Group<span class="tooltip">A configuration object that specifies a group of backend endpoints for a load balancer. Serverless NEGs point to Cloud Run, App Engine, or Cloud Functions services.</span></span>. The Network Endpoint Group directs traffic to the <span class="term">Frontend Cloud Run<span class="tooltip">A managed compute platform that automatically scales stateless containers. It's serverless, meaning you don't need to provision or manage infrastructure.</span></span> service. Traffic enters the <span class="term">VPC<span class="tooltip">A private, isolated section of Google Cloud where you can launch resources in a virtual network that you define. It provides network isolation and security for your cloud resources.</span></span> via the <span class="term">VPC Connector<span class="tooltip">A resource that allows serverless environments like Cloud Run to connect to resources in a VPC network privately, without traversing the public internet.</span></span>.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h4>Frontend Processing</h4>
+                    <p>The <span class="term">Frontend Cloud Run<span class="tooltip">A managed compute platform that automatically scales stateless containers. It's serverless, meaning you don't need to provision or manage infrastructure.</span></span> service (1-3 instances) receives the request. It processes the user interface components. When weather data is needed, it makes an internal API call.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <h4>Internal Communication</h4>
+                    <p>The <span class="term">Frontend<span class="tooltip">The user interface component of the application that runs in Cloud Run, handling user interactions and requesting data from the backend.</span></span> service communicates with the <span class="term">Backend<span class="tooltip">The data processing component of the application that runs in Cloud Run, processing business logic and potentially connecting to external data sources.</span></span> service through internal VPC networking. The <span class="term">Service Account<span class="tooltip">A special type of Google account intended for applications to authenticate and access Google Cloud resources with specific permissions.</span></span> provides necessary IAM permissions for this communication.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">8</div>
+                <div class="step-content">
+                    <h4>Backend Processing</h4>
+                    <p>The <span class="term">Backend Cloud Run<span class="tooltip">A managed compute platform that automatically scales stateless containers. It's serverless, meaning you don't need to provision or manage infrastructure.</span></span> service processes the weather data request. If external weather APIs are needed, traffic goes through the <span class="term">Router<span class="tooltip">A regional resource that provides dynamic route exchange between your VPC and other networks using Border Gateway Protocol (BGP).</span></span> to <span class="term">Cloud NAT<span class="tooltip">A distributed, software-defined managed service that lets resources without external IP addresses create outbound connections to the internet.</span></span>. Cloud NAT enables secure outbound internet access with a managed external IP.</p>
+                </div>
+            </div>
+            
+            <div class="journey-step">
+                <div class="step-number">9</div>
+                <div class="step-content">
+                    <h4>Response Journey</h4>
+                    <p>Weather data flows back from <span class="term">Backend<span class="tooltip">The data processing component of the application that runs in Cloud Run, processing business logic and potentially connecting to external data sources.</span></span> to <span class="term">Frontend<span class="tooltip">The user interface component of the application that runs in Cloud Run, handling user interactions and requesting data from the backend.</span></span>. Frontend renders the complete page with weather information. The response travels back through the <span class="term">Network Endpoint Group<span class="tooltip">A configuration object that specifies a group of backend endpoints for a load balancer. Serverless NEGs point to Cloud Run, App Engine, or Cloud Functions services.</span></span>, <span class="term">Backend Service<span class="tooltip">A centralized service that defines health checks and session affinity, and distributes traffic across backends, which can be instance groups or NEGs.</span></span>, and <span class="term">Load Balancer<span class="tooltip">A service that distributes traffic across multiple instances of your applications to provide high availability, fault tolerance, and scalability.</span></span>. The fully rendered page with weather data returns to the user's browser.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notes">
+        <h3>Architecture Notes</h3>
+        <ul>
+            <li><strong>Traffic Flow:</strong> External users access the application through the global IP address, which routes through the load balancer to the frontend Cloud Run service.</li>
+            <li><strong>Security:</strong> Identity-Aware Proxy (IAP) secures access to the application, requiring authentication.</li>
+            <li><strong>VPC Isolation:</strong> The backend and frontend Cloud Run services are isolated in the VPC network with controlled ingress/egress.</li>
+            <li><strong>Outbound Connectivity:</strong> Cloud NAT provides outbound internet access for the private services while keeping them isolated from direct inbound connections.</li>
+            <li><strong>Internal Communications:</strong> The backend service communicates with the frontend service through internal VPC networking.</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Infrastructure Components</h2>
+        <p>This Terraform configuration deploys a weather application on Google Cloud Platform with proper network isolation:</p>
+        
+        <div class="resources">
+            <div class="resource-card">
+                <h3>Network & VPC</h3>
+                <ul>
+                    <li><span class="term">VPC Network<span class="tooltip">A private, isolated section of Google Cloud where you can launch resources in a virtual network that you define. It provides network isolation and security for your cloud resources.</span></span> with private <span class="term">subnet<span class="tooltip">A range of IP addresses within a VPC. Subnets are regional resources that allow you to divide your VPC network into smaller networks.</span></span> (10.0.0.0/24)</li>
+                    <li><span class="term">VPC Connector<span class="tooltip">A resource that allows serverless environments like Cloud Run to connect to resources in a VPC network privately, without traversing the public internet.</span></span> for serverless service connectivity</li>
+                    <li><span class="term">Cloud Router<span class="tooltip">A regional resource that provides dynamic route exchange between your VPC and other networks using Border Gateway Protocol (BGP).</span></span> & <span class="term">NAT<span class="tooltip">A distributed, software-defined managed service that lets resources without external IP addresses create outbound connections to the internet.</span></span> for outbound connectivity only</li>
+                    <li>No direct inbound access to private resources</li>
+                </ul>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Private Services</h3>
+                <ul>
+                    <li><span class="term">Backend Cloud Run<span class="tooltip">A managed compute platform that automatically scales stateless containers. It's serverless, meaning you don't need to provision or manage infrastructure.</span></span> service (isolated in VPC)</li>
+                    <li><span class="term">Frontend Cloud Run<span class="tooltip">A managed compute platform that automatically scales stateless containers. It's serverless, meaning you don't need to provision or manage infrastructure.</span></span> service (isolated in VPC)</li>
+                    <li><span class="term">Service account<span class="tooltip">A special type of Google account intended for applications to authenticate and access Google Cloud resources with specific permissions.</span></span> with limited IAM permissions</li>
+                    <li>Auto-scaling configured for both services (1-3 instances)</li>
+                </ul>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Load Balancing</h3>
+                <ul>
+                    <li><span class="term">Global IP<span class="tooltip">A static external IP address that works across all regions, typically used with global load balancers to provide a consistent entry point to your application.</span></span> for public access</li>
+                    <li><span class="term">SSL<span class="tooltip">A digital certificate that establishes secure encrypted connections between a user's browser and the web server, enabling HTTPS connections.</span></span>-secured HTTPS endpoint</li>
+                    <li>HTTP to HTTPS redirection for security</li>
+                    <li>Connection to VPC-based services via <span class="term">Network Endpoint Group<span class="tooltip">A configuration object that specifies a group of backend endpoints for a load balancer. Serverless NEGs point to Cloud Run, App Engine, or Cloud Functions services.</span></span></li>
+                </ul>
+            </div>
+            
+            <div class="resource-card">
+                <h3>Security</h3>
+                <ul>
+                    <li><span class="term">Identity-Aware Proxy (IAP)<span class="tooltip">A security service that provides central authorization for applications accessed by HTTPS, enabling context-aware access to applications based on user identity and request context.</span></span> for authentication</li>
+                    <li><span class="term">SSL certificate<span class="tooltip">A digital certificate that establishes secure encrypted connections between a user's browser and the web server, enabling HTTPS connections.</span></span> for encrypted connections</li>
+                    <li>OAuth client for secure identity verification</li>
+                    <li>Controlled service-to-service access</li>
+                </ul>
+            </div>
+            
+            <div class="resource-card">
+                <h3>DNS Configuration</h3>
+                <ul>
+                    <li>Root domain <span class="term">A record<span class="tooltip">A DNS record type that maps a domain name to an IPv4 address. It's the most direct way to point a domain to a specific server/IP.</span></span> pointing to load balancer IP</li>
+                    <li>www subdomain <span class="term">CNAME record<span class="tooltip">A Canonical Name record that maps an alias domain name to a true or canonical domain name. Often used to map subdomains like 'www' to the root domain.</span></span> for consistent routing</li>
+                    <li>Managed <span class="term">DNS zone<span class="tooltip">A container for DNS records belonging to a single parent domain. It allows you to manage all DNS records for a domain in one place.</span></span> for domain configuration</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis',
+                rankSpacing: 80,
+                nodeSpacing: 50
+            },
+            themeVariables: {
+                fontSize: '14px',
+                fontFamily: 'arial'
+            }
+        });
+        
+        // JavaScript to handle tooltip positioning for terms that are near the edge of the screen
+        document.addEventListener('DOMContentLoaded', function() {
+            const terms = document.querySelectorAll('.term');
+            
+            terms.forEach(term => {
+                term.addEventListener('mouseenter', function() {
+                    const tooltip = this.querySelector('.tooltip');
+                    const rect = tooltip.getBoundingClientRect();
+                    
+                    // Check if tooltip goes off the right edge
+                    if (rect.right > window.innerWidth) {
+                        tooltip.style.left = 'auto';
+                        tooltip.style.right = '0';
+                        tooltip.style.transform = 'none';
+                    }
+                    
+                    // Check if tooltip goes off the left edge
+                    if (rect.left < 0) {
+                        tooltip.style.left = '0';
+                        tooltip.style.transform = 'none';
+                    }
+                });
+            });
+            
+            // Add fullscreen functionality
+            const diagramContainer = document.getElementById('diagramContainer');
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            
+            fullscreenBtn.addEventListener('click', function() {
+                diagramContainer.classList.toggle('fullscreen');
+                if (diagramContainer.classList.contains('fullscreen')) {
+                    document.body.style.overflow = 'hidden';
+                    // Reinitialize mermaid to ensure diagram fits in fullscreen
+                    setTimeout(() => { mermaid.init(undefined, '.mermaid'); }, 100);
+                } else {
+                    document.body.style.overflow = '';
+                    // Reinitialize mermaid to ensure diagram fits in normal view
+                    setTimeout(() => { mermaid.init(undefined, '.mermaid'); }, 100);
+                }
+            });
+            
+            // Add escape key listener for fullscreen
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && diagramContainer.classList.contains('fullscreen')) {
+                    diagramContainer.classList.remove('fullscreen');
+                    document.body.style.overflow = '';
+                    setTimeout(() => { mermaid.init(undefined, '.mermaid'); }, 100);
+                }
+            });
+            
+            // Resize handler for responsive diagram
+            function handleResize() {
+                // Reinitialize mermaid to ensure diagram fits the container
+                mermaid.init(undefined, '.mermaid');
+            }
+            
+            // Add resize event listener with debounce
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(handleResize, 250);
+            });
+        });
+    </script>
+</body>
+</html> 

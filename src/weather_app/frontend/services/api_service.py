@@ -8,9 +8,10 @@ from typing import Dict, Any, Optional
 import streamlit as st
 import json
 import time
+import os
 
-# Default API base URL (assuming backend is running on localhost:8001)
-DEFAULT_API_BASE_URL = "http://localhost:8001"
+# Default API base URL (using environment variable if available)
+DEFAULT_API_BASE_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
 # Cache timeout in seconds (5 minutes)
 CACHE_TIMEOUT = 300
@@ -31,6 +32,9 @@ class ApiService:
         # Initialize cache if not already present
         if "api_cache" not in st.session_state:
             st.session_state.api_cache = {}
+        
+        # Log the backend URL for debugging
+        st.sidebar.text(f"Using backend: {self.base_url}")
     
     async def get_current_weather(self, location: str) -> Optional[Dict[str, Any]]:
         """
