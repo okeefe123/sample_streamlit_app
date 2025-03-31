@@ -9,7 +9,7 @@ graph TB
     BACKEND[Cloud Run: weather-app-backend]
     FRONTEND[Cloud Run: weather-app-frontend]
     LB[Load Balancer]
-    DNS[DNS Zone: sdfingfd-xyz-zone]
+    DNS[DNS Zone: sdfjngfd-xyz-zone]
     CERT[SSL Certificate]
     IAP[Identity-Aware Proxy]
     
