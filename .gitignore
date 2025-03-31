@@ -16,3 +16,5 @@ terraform.tfvars
 terraform.tfstate
 terraform.tfstate.backup
 tfplan
+
+.DS_Store
